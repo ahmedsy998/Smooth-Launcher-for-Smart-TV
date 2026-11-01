@@ -1,0 +1,142 @@
+name: Build Smooth TV Launcher APK
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-debug-apk:
+    name: Build Debug APK
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Verify required Gradle build files exist
+        shell: bash
+        run: |
+          set -euo pipefail
+          missing=0
+          for required_file in \
+            "settings.gradle.kts" \
+            "app/build.gradle.kts" \
+            "gradle/libs.versions.toml"; do
+            if [ ! -f "$required_file" ]; then
+              echo "::error::Missing required file: $required_file"
+              missing=1
+            fi
+          done
+
+          if [ ! -f "build.gradle.kts" ] && [ ! -f "build.gradle" ]; then
+            echo "::error::Missing root Gradle build file (build.gradle.kts or build.gradle)"
+            missing=1
+          fi
+
+          if [ "$missing" -ne 0 ]; then
+            exit 1
+          fi
+
+      - name: Set up JDK 17 (Temurin)
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Determine Gradle distribution version
+        id: gradle-meta
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ -f "gradlew" ] && [ -f "gradle/wrapper/gradle-wrapper.jar" ] && [ -f "gradle/wrapper/gradle-wrapper.properties" ]; then
+            chmod +x gradlew
+            echo "use_wrapper=true" >> "$GITHUB_OUTPUT"
+            echo "gradle_version=wrapper" >> "$GITHUB_OUTPUT"
+          else
+            echo "use_wrapper=false" >> "$GITHUB_OUTPUT"
+            if [ -f "gradle/wrapper/gradle-wrapper.properties" ]; then
+              PROP_VER=$( sed -n 's/.*gradle-\([0-9.]*\)-.*\.zip.*/\1/p' gradle/wrapper/gradle-wrapper.properties | head -n 1 )
+              echo "gradle_version=${PROP_VER:-9.3.1}" >> "$GITHUB_OUTPUT"
+            else
+              echo "gradle_version=9.3.1" >> "$GITHUB_OUTPUT"
+            fi
+          fi
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: ${{ steps.gradle-meta.outputs.gradle_version }}
+
+      - name: Ensure debug keystore exists if required
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ -f "debug.keystore" ]; then
+            echo "Existing debug.keystore found."
+          elif [ -f "debug.keystore.base64" ]; then
+            echo "Decoding debug.keystore from debug.keystore.base64..."
+            base64 -d debug.keystore.base64 > debug.keystore
+          elif grep -q 'file("${rootDir}/debug.keystore")' app/build.gradle.kts; then
+            echo "Generating standard Android debug.keystore..."
+            keytool -genkeypair \
+              -v \
+              -keystore debug.keystore \
+              -storepass android \
+              -alias androiddebugkey \
+              -keypass android \
+              -keyalg RSA \
+              -keysize 2048 \
+              -validity 10000 \
+              -dname "CN=Android Debug,O=Android,C=US"
+          fi
+
+      - name: Ensure default .env file exists for Secrets Gradle Plugin
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ ! -f ".env" ] && [ -f ".env.example" ]; then
+            cp .env.example .env
+          elif [ ! -f ".env" ]; then
+            touch .env
+          fi
+
+      - name: Build Debug APK
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ "${{ steps.gradle-meta.outputs.use_wrapper }}" = "true" ]; then
+            ./gradlew assembleDebug --no-daemon --stacktrace
+          else
+            gradle assembleDebug --no-daemon --stacktrace
+          fi
+
+      - name: Verify generated APK output
+        shell: bash
+        run: |
+          set -euo pipefail
+          APK_DIR="app/build/outputs/apk/debug"
+          if [ ! -d "$APK_DIR" ]; then
+            echo "::error::APK output directory '$APK_DIR' does not exist."
+            exit 1
+          fi
+
+          APK_FILES=$(find "$APK_DIR" -maxdepth 2 -type f -name "*.apk")
+          if [ -z "$APK_FILES" ]; then
+            echo "::error::No APK file was found in '$APK_DIR'."
+            exit 1
+          fi
+
+          echo "Verified generated APK file(s):"
+          ls -lh "$APK_DIR"/*.apk
+
+      - name: Upload Smooth TV Launcher APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: Smooth-TV-Launcher-APK
+          path: app/build/outputs/apk/debug/*.apk
+          if-no-files-found: error
