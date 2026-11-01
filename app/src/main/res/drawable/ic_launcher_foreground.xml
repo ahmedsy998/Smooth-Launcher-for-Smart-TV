@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <!-- Outer subtle glow ring -->
+    <path
+        android:fillColor="#265CE1E6"
+        android:pathData="M34,27 C34,22.5 39,19.8 43,22 L76,41 C80,43.2 80,48.8 76,51 L43,70 C39,72.2 34,69.5 34,65 Z" />
+    <!-- Main Smooth TV Play Triangle matching reference logo -->
+    <path
+        android:pathData="M37,31 C37,27.2 41.2,24.9 44.5,26.8 L74,43.8 C77.3,45.7 77.3,50.3 74,52.2 L44.5,69.2 C41.2,71.1 37,68.8 37,65 Z">
+        <aapt:attr name="android:fillColor">
+            <gradient
+                android:startX="37"
+                android:startY="26"
+                android:endX="76"
+                android:endY="70"
+                android:type="linear">
+                <item android:offset="0.0" android:color="#38BDF8" />
+                <item android:offset="0.5" android:color="#6366F1" />
+                <item android:offset="1.0" android:color="#A855F7" />
+            </gradient>
+        </aapt:attr>
+    </path>
+    <!-- Inner cutout for sleek hollow play badge look -->
+    <path
+        android:fillColor="#0D1536"
+        android:pathData="M45,39 L63,48 L45,57 Z" />
+</vector>

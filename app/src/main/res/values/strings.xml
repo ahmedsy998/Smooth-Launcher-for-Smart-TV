@@ -1,0 +1,23 @@
+<resources>
+    <string name="app_name">Smooth TV Launcher</string>
+    <string name="nav_home">الرئيسية</string>
+    <string name="nav_apps">التطبيقات</string>
+    <string name="nav_movies">الأفلام</string>
+    <string name="nav_series">المسلسلات</string>
+    <string name="nav_favorites">المفضلة</string>
+    <string name="nav_files">الملفات</string>
+    <string name="nav_settings">الإعدادات</string>
+    <string name="all_apps">كل التطبيقات</string>
+    <string name="featured_default_title">اكتشف المحتوى المميز</string>
+    <string name="featured_default_subtitle">أفلام • مسلسلات • تطبيقات</string>
+    <string name="network_connected">متصل بالإنترنت</string>
+    <string name="network_no_internet">متصل بالشبكة بدون إنترنت</string>
+    <string name="network_disconnected">غير متصل بالإنترنت</string>
+    <string name="choose_background_from_files">Choose Background from Files</string>
+    <string name="choose_background_from_files_ar">اختيار خلفية من الملفات (Choose Background from Files)</string>
+    <string name="customize_home_menu">تخصيص القائمة الرئيسية (Customize Home Menu)</string>
+    <string name="icon_customization">تخصيص الأيقونات (Icon Customization)</string>
+    <string name="fonts_and_typography">الخطوط والطباعة (Fonts and Typography)</string>
+    <string name="background_and_appearance">الخلفية والمظهر (Background and Appearance)</string>
+    <string name="restore_default_menu">استعادة القائمة الافتراضية (Restore Default Menu)</string>
+</resources>

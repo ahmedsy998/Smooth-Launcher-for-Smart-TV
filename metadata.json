@@ -1,0 +1,6 @@
+{
+  "name": "Smooth TV Launcher",
+  "description": "Lightweight, customizable Arabic-first native Android TV and Google TV launcher with editable right-side navigation, icon/font/background customization, and real-time connectivity indicator.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
